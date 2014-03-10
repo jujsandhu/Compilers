@@ -1,0 +1,44 @@
+import java_cup.runtime.*;
+
+terminal PLUS, CONCAT, MINUS, DIVIDE, TIMES,POWER,
+IN,
+EQ, EQQ, NOTEQ, LT, GT, LTEQ, GTEQ,NEGATE,AND,
+SEMI,COMMA,LPAREN, RPAREN,LBRACE,RBRACE,COLON,
+INTEGER, STRINGLITERAL,CHARLITERAL,BOOLEANLITERAL,FLOATLITERAL,
+INT,STRING, FLOAT, CHAR, BOOL, LIST, DICT,
+LEN,
+MAIN,VOID,
+ID,IF, ELSE, WHILE, FOREACH,RETURN, DO, READ, PRINT,DEF,TDEF;
+
+non terminal expr, exprlist, exprstmt, decllist, decl, program,dictExpr,listExpr,numExpr,booleanExpr, charExpr,stringExpr,comparisonOpr,selectionStmt;
+
+precedence left PLUS;
+precedence left TIMES;
+
+
+program ::= decllist MAIN exprlist {: System.out.println("========end parsing=========="); :}
+	;
+
+decllist ::= decllist decl 
+	| 
+	;
+
+decl ::= INT ID SEMI
+	| INT ID EQ expr SEMI 
+	| error SEMI {: System.out.println("decl failed"); :}
+	; 
+
+exprlist ::= exprlist exprstmt 
+	| 
+	;
+
+exprstmt ::= ID EQ expr SEMI 
+	| error SEMI {: System.out.println("expr failed"); :}
+	;
+
+expr      ::= INTEGER 
+	    | ID
+          | expr PLUS expr 
+          | expr TIMES expr 
+          | LPAREN expr RPAREN
+          ;
