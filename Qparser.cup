@@ -66,12 +66,14 @@ precedence nonassoc LT, LTEQ, GT, GTEQ, EQQ, NOTEQ;
 start with program;
 
 program ::= 
-global_decl_list {: System.out.println("Parsing Complete"); :}
+global_decl_list {: System.out.println("Parsing Complete"); System.exit(0); :}
 ;
 
 global_decl_list ::= 
 global_decl_list global_decl 
-| global_decl;
+| global_decl
+
+;
 
 global_decl ::= 
 datatype_decl
@@ -87,7 +89,7 @@ DEF function_type ID LPAREN parameter_clist RPAREN body
 var_decl ::= 
 type ID EQ expression_list SEMI
 | type ID SEMI
-| error SEMI {: parser.report_error("variable declaration", "WRONG"); :}
+| error SEMI {: parser.report_error("Variable Declaration", "WRONG"); :}
 ;
 
 datatype_decl ::=
@@ -156,7 +158,8 @@ READ ID SEMI
 ;
 
 ifstmt ::= 
-IF LPAREN expression RPAREN LBRACE statement_list RBRACE ELSE LBRACE statement_list RBRACE
+IF LPAREN expression RPAREN body
+|IF LPAREN expression RPAREN body ELSE body
 ;
 
 while ::=
