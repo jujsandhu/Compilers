@@ -5,6 +5,5 @@ public class Test {
 		Yylex scanner = new Yylex(System.in);
 		parser parser = new parser(scanner);
 	  	parser.parse();
-        
 	    }
 }

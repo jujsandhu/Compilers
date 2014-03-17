@@ -3,42 +3,235 @@ import java_cup.runtime.*;
 terminal PLUS, CONCAT, MINUS, DIVIDE, TIMES,POWER,
 IN,
 EQ, EQQ, NOTEQ, LT, GT, LTEQ, GTEQ,NEGATE,AND,
-SEMI,COMMA,LPAREN, RPAREN,LBRACE,RBRACE,COLON,
+SEMI,COMMA,LPAREN, RPAREN,LBRACE,RBRACE,COLON,LBRACKET,RBRACKET,DOT,LINE,
 INTEGER, STRINGLITERAL,CHARLITERAL,BOOLEANLITERAL,FLOATLITERAL,
 INT,STRING, FLOAT, CHAR, BOOL, LIST, DICT,
 LEN,
 MAIN,VOID,
 ID,IF, ELSE, WHILE, FOREACH,RETURN, DO, READ, PRINT,DEF,TDEF;
 
-non terminal expr, exprlist, exprstmt, decllist, decl, program,dictExpr,listExpr,numExpr,booleanExpr, charExpr,stringExpr,comparisonOpr,selectionStmt;
+non terminal type;
+non terminal expression, term, toPower, preMinus, final, assignment_ID;
+non terminal list,dict;
+non terminal expression_list, expression_moreThanOne;
+non terminal var_decl;
 
-precedence left PLUS;
-precedence left TIMES;
+non terminal function_type, function_def;
+non terminal parameter_clist, parameter_moreThanOne,dict_listMoreThanOne,dict_list;
+
+non terminal global_decl_list, global_decl, local_decl_list;
+non terminal datatype_parameterlist_2,datatype_parameterlist,  datatype_decl;
+
+non terminal body, statement_list, statement;
+non terminal ifstmt, while, assignment, callFunction, return,foreachstmt,print,read;
+non terminal program;
+
+precedence right POWER;
+precedence left DIVIDE, TIMES;
+precedence left PLUS, MINUS;
+
+precedence nonassoc NEGATE;
+precedence left AND;
+precedence right IN;
+precedence nonassoc LT, LTEQ, GT, GTEQ, EQQ, NOTEQ;
 
 
-program ::= decllist MAIN exprlist {: System.out.println("========end parsing=========="); :}
-	;
+start with program;
 
-decllist ::= decllist decl 
-	| 
-	;
+program ::= 
+global_decl_list {: System.out.println("Parsing Complete"); :}
+;
 
-decl ::= INT ID SEMI
-	| INT ID EQ expr SEMI 
-	| error SEMI {: System.out.println("decl failed"); :}
-	; 
+global_decl_list ::= 
+global_decl_list global_decl 
+| global_decl;
 
-exprlist ::= exprlist exprstmt 
-	| 
-	;
+global_decl ::= 
+datatype_decl
+| var_decl
+| function_def
+;
 
-exprstmt ::= ID EQ expr SEMI 
-	| error SEMI {: System.out.println("expr failed"); :}
-	;
+function_def ::= 
+DEF function_type ID LPAREN parameter_clist RPAREN body
+|VOID MAIN body
+;
 
-expr      ::= INTEGER 
-	    | ID
-          | expr PLUS expr 
-          | expr TIMES expr 
-          | LPAREN expr RPAREN
-          ;
+var_decl ::= 
+type ID EQ expression_list SEMI
+| type ID SEMI
+| error SEMI {: System.out.println("variable declaration failed"); :}
+;
+
+datatype_decl ::=
+TDEF ID COLON datatype_parameterlist SEMI
+;
+
+datatype_parameterlist ::=
+ID COLON type datatype_parameterlist_2 
+|
+;
+
+datatype_parameterlist_2 ::=
+COMMA ID COLON type datatype_parameterlist_2
+|
+;
+
+function_type ::= 
+VOID 
+| type;
+
+parameter_clist ::= 
+type ID parameter_moreThanOne
+|
+;
+
+parameter_moreThanOne ::= 
+COMMA type ID parameter_moreThanOne
+|
+;
+
+body ::= 
+LBRACE local_decl_list statement_list RBRACE
+| LBRACE statement_list RBRACE
+;
+
+local_decl_list ::= 
+local_decl_list var_decl
+| var_decl
+;
+
+statement_list ::= 
+statement statement_list
+|;
+
+statement ::= 
+assignment
+| callFunction
+| ifstmt
+| while
+| return
+| read
+| print
+| foreachstmt
+;
+
+foreachstmt  ::=
+FOREACH LPAREN ID COLON final RPAREN body
+;
+
+print ::=
+PRINT expression_list SEMI
+;
+
+read ::=
+READ ID SEMI
+;
+
+ifstmt ::= 
+IF LPAREN expression RPAREN LBRACE statement_list RBRACE ELSE LBRACE statement_list RBRACE
+;
+
+while ::=
+WHILE LPAREN expression RPAREN DO LBRACE statement_list RBRACE
+;
+
+callFunction ::=
+ID LPAREN expression_list RPAREN
+;
+
+return ::= 
+RETURN expression SEMI
+| RETURN SEMI
+;
+
+assignment_ID ::=
+ID
+| assignment_ID DOT ID
+;
+
+assignment ::= 
+assignment_ID EQ expression SEMI
+;
+
+list ::= 
+LBRACKET expression_list RBRACKET
+;
+
+expression_list ::= 
+expression expression_moreThanOne
+| expression_moreThanOne
+;
+
+expression_moreThanOne ::= 
+COMMA expression expression_moreThanOne
+|
+;
+
+dict ::=
+LBRACKET LINE dict_list LINE RBRACKET
+;
+
+dict_list ::=
+final COLON final dict_listMoreThanOne
+;
+
+dict_listMoreThanOne ::=
+COMMA final COLON final dict_listMoreThanOne
+|
+;
+
+
+expression ::=
+term
+| NEGATE expression
+| expression PLUS term
+| expression MINUS term
+| expression IN term
+| expression LT term
+| expression LTEQ term
+| expression GT term
+| expression GTEQ term
+| expression EQQ term
+| expression NOTEQ term
+| expression CONCAT term
+| expression LBRACKET expression COLON expression RBRACKET
+| expression LBRACKET expression COLON RBRACKET
+| expression LBRACKET COLON expression RBRACKET
+| expression LBRACKET expression RBRACKET
+;
+
+term ::=
+toPower
+| term TIMES toPower
+| term DIVIDE toPower
+| term POWER toPower
+| term AND toPower
+;
+
+toPower ::=
+preMinus POWER toPower
+| preMinus
+;
+
+preMinus ::=
+MINUS preMinus 
+| final
+;
+
+
+final ::=
+assignment_ID
+| LPAREN expression RPAREN
+| INTEGER
+| FLOATLITERAL
+| BOOLEANLITERAL
+| CHARLITERAL
+| callFunction
+| LEN LPAREN expression RPAREN
+| STRINGLITERAL
+| list
+| dict
+;
+
+type ::= BOOL | INT | FLOAT | STRING | CHAR | LIST | DICT | ID;

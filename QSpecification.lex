@@ -8,6 +8,10 @@ import java_cup.runtime.Symbol;
 %column
 %states INCOMMENT
 
+%{
+	private StringBuilder input = null;
+%}
+
 
 digit = [0-9]
 number = {digit}+
@@ -30,66 +34,74 @@ comment = "//".*{newLine}
 %%
 
 /* Operators */
-"+" {return new Symbol(sym.PLUS);}
-"^" {return new Symbol(sym.POWER);}
-"::" {return new Symbol(sym.CONCAT);}
-":" {return new Symbol(sym.COLON);}
-"*" {return new Symbol(sym.TIMES);}
-"-" {return new Symbol(sym.MINUS);}
-"/" {return new Symbol(sym.DIVIDE);}
-
+"+" {return new Symbol(sym.PLUS,yyline, yycolumn);}
+"^" {return new Symbol(sym.POWER,yyline, yycolumn);}
+"::" {return new Symbol(sym.CONCAT,yyline, yycolumn);}
+":" {return new Symbol(sym.COLON,yyline, yycolumn);}
+"*" {return new Symbol(sym.TIMES,yyline, yycolumn);}
+"-" {return new Symbol(sym.MINUS,yyline, yycolumn);}
+"/" {return new Symbol(sym.DIVIDE,yyline, yycolumn);}
+"." {return new Symbol(sym.DOT,yyline, yycolumn);}
+"|" {return new Symbol(sym.LINE,yyline, yycolumn);} 
 
 //Comparison operators
-"==" {return new Symbol(sym.EQQ);}
-"!=" {return new Symbol(sym.NOTEQ);}
-"<" {return new Symbol(sym.LT);}
-">" {return new Symbol(sym.GT);}
-"<=" {return new Symbol(sym.LTEQ);}
-">=" {return new Symbol(sym.GTEQ);}
+"==" {return new Symbol(sym.EQQ,yyline, yycolumn);}
+"!=" {return new Symbol(sym.NOTEQ,yyline, yycolumn);}
+"<" {return new Symbol(sym.LT,yyline, yycolumn);}
+">" {return new Symbol(sym.GT,yyline, yycolumn);}
+"<=" {return new Symbol(sym.LTEQ,yyline, yycolumn);}
+">=" {return new Symbol(sym.GTEQ,yyline, yycolumn);}
 
 //General tokens
-"," {return new Symbol(sym.COMMA);}
-"{" {return new Symbol(sym.LBRACE);}
-"}" {return new Symbol(sym.RBRACE);}
-"(" {return new Symbol(sym.LPAREN);}
-")" {return new Symbol(sym.RPAREN);}
-";" {return new Symbol(sym.SEMI);}
-"=" {return new Symbol(sym.EQ);}
-"!" {return new Symbol(sym.NEGATE);}
-"&&" {return new Symbol(sym.AND);}
-"in" {return new Symbol(sym.IN);}
+"," {return new Symbol(sym.COMMA,yyline, yycolumn);}
+"{" {return new Symbol(sym.LBRACE,yyline, yycolumn);}
+"}" {return new Symbol(sym.RBRACE,yyline, yycolumn);}
+"[" {return new Symbol(sym.LBRACKET,yyline, yycolumn);}
+"]" {return new Symbol(sym.RBRACKET,yyline, yycolumn);}
+"(" {return new Symbol(sym.LPAREN,yyline, yycolumn);}
+")" {return new Symbol(sym.RPAREN,yyline, yycolumn);}
+";" {return new Symbol(sym.SEMI,yyline, yycolumn);}
+"=" {return new Symbol(sym.EQ,yyline, yycolumn);}
+"!" {return new Symbol(sym.NEGATE,yyline, yycolumn);}
+"&&" {return new Symbol(sym.AND,yyline, yycolumn);}
+"in" {return new Symbol(sym.IN,yyline, yycolumn);}
 
-"string" {return new Symbol(sym.STRING);}
-"int" {return new Symbol(sym.INT);}
-"float" {return new Symbol(sym.FLOAT);}
-"char" {return new Symbol(sym.CHAR);}
-"bool" {return new Symbol(sym.BOOL);}
-"list" {return new Symbol(sym.LIST);}
-"dict" {return new Symbol(sym.DICT);}
-"def" {return new Symbol(sym.DEF);}
-"tdef" {return new Symbol(sym.TDEF);}
+"string" {return new Symbol(sym.STRING,yyline, yycolumn);}
+"int" {return new Symbol(sym.INT,yyline, yycolumn);}
+"float" {return new Symbol(sym.FLOAT,yyline, yycolumn);}
+"char" {return new Symbol(sym.CHAR,yyline, yycolumn);}
+"bool" {return new Symbol(sym.BOOL,yyline, yycolumn);}
+"list" {return new Symbol(sym.LIST,yyline, yycolumn);}
+"dict" {return new Symbol(sym.DICT,yyline, yycolumn);}
+"def" {return new Symbol(sym.DEF,yyline, yycolumn);}
+"tdef" {return new Symbol(sym.TDEF,yyline, yycolumn);}
 
-"if" {return new Symbol(sym.IF);}
-"else" {return new Symbol(sym.ELSE);}
-"while" {return new Symbol(sym.WHILE);}
-"foreach" {return new Symbol(sym.FOREACH);}
-"len" {return new Symbol(sym.LEN);}
-"return" {return new Symbol(sym.RETURN);}
-"do" {return new Symbol(sym.DO);}
-"read" {return new Symbol(sym.READ);}
-"print" {return new Symbol(sym.PRINT);}
-"main" {return new Symbol(sym.MAIN);}
-"void" {return new Symbol(sym.VOID);}
+"if" {return new Symbol(sym.IF,yyline, yycolumn);}
+"else" {return new Symbol(sym.ELSE,yyline, yycolumn);}
+"while" {return new Symbol(sym.WHILE,yyline, yycolumn);}
+"foreach" {return new Symbol(sym.FOREACH,yyline, yycolumn);}
+"len" {return new Symbol(sym.LEN,yyline, yycolumn);}
+"return" {return new Symbol(sym.RETURN,yyline, yycolumn);}
+"do" {return new Symbol(sym.DO,yyline, yycolumn);}
+"read" {return new Symbol(sym.READ,yyline, yycolumn);}
+"print" {return new Symbol(sym.PRINT,yyline, yycolumn);}
+"main" {return new Symbol(sym.MAIN,yyline, yycolumn);}
+"void" {return new Symbol(sym.VOID,yyline, yycolumn);}
 "/*"       { yybegin(INCOMMENT); }
 
 <YYINITIAL>{booleanLiteral}	    {return new Symbol(sym.BOOLEANLITERAL, yytext().equals("true"));}  
-<YYINITIAL>{identifier}         {return new Symbol(sym.ID, yytext());}
+<YYINITIAL>{identifier}         {return new Symbol(sym.ID,yyline, yycolumn, yytext());}
 <YYINITIAL>{charLiteral}	    {return new Symbol(sym.CHARLITERAL, yytext().charAt(1));}
 <YYINITIAL>{floatLiteral}		{return new Symbol(sym.FLOATLITERAL, yytext());}
-<YYINITIAL>{integer}	        {return new Symbol(sym.INTEGER, Integer.parseInt(yytext()));}
+<YYINITIAL>{integer}	        {return new Symbol(sym.INTEGER,Integer.parseInt(yytext()));}
 <YYINITIAL>{stringLiteral}	 	{return new Symbol(sym.STRINGLITERAL, yytext().substring(1, yytext().length() - 1));}
 <YYINITIAL>{whitespace} {}
 <YYINITIAL>{comment} {}
+
+.					{ 
+						yybegin(ERROR);
+						input = new StringBuilder(yytext()); 
+       		}
 
 <INCOMMENT> {
 "*/"      { yybegin(YYINITIAL); }
@@ -103,7 +115,8 @@ comment = "//".*{newLine}
 					{
 					yypushback(1);
 					yybegin(YYINITIAL);
-					System.err.println("Error: unknown input " + yytext() + " found at line " + yyline + ", character " + yycolumn);
+					System.err.println("Error in line " + yyline + ": character " + input + " in column "+yycolumn);
 					}
+.					{input.append(yytext());}
 }
 
